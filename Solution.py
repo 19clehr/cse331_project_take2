@@ -32,8 +32,17 @@ class Solution:
         but they must remain within the Solution class.
         """
         paths, bandwidths, priorities = {}, {}, {}
-        # Note: You do not need to modify all of the above. For Problem 1, only the paths variable needs to be modified. If you do modify a variable you are not supposed to, you might notice different revenues outputted by the Driver locally since the autograder will ignore the variables not relevant for the problem.
-        # WARNING: DO NOT MODIFY THE LINE BELOW, OR BAD THINGS WILL HAPPEN
+        
+        map = []
+        for vertex in self.graph:
+            for node,val in self.info["bandwidths"].items():
+                if(vertex==node): 
+                    map.append((vertex,val,self.graph[vertex]))
+
+        sorted_map = sorted(map, key= lambda x: x[1])
+        #map is a sorted list of (node, bandwidth of node, connected nodes list)
+        print(sorted_map)
+       
         
         
         
