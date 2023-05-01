@@ -12,50 +12,55 @@ class Solution:
         self.graph = graph
         self.info = info
 
+        #self.info["list_clients"] = client list
+        #self.info["alphas"] = alpha
+        #self.info["bandwidths"] = bu 
+        #self.info["betas"] = betas
+        #self.isp = start_node
+
     def output_paths(self):
-        """
-        This method must be filled in by you. You may add other methods and subclasses as you see fit,
-        but they must remain within the Solution class.
-        """
         paths, bandwidths, priorities = {}, {}, {}
-
-        
-        map = []
-        bandwidths = self.info["bandwidths"]
-        alphas = self.info["alphas"]
-        for vertex in self.graph:
-            if vertex in bandwidths and vertex in alphas:
-                map.append((vertex, bandwidths[vertex], alphas[vertex], self.graph[vertex]))
-
-
-        #map is a sorted list of (node, bandwidth of node, alpha)
-        #print(map)
-
-        distance = {}
-        distance[self.isp] = 0
-        for i in self.graph:
-            distance[i] = 999999999999999999999999999999999
-            queue=[]
-        queue.append((self.isp,0))
-
-        explored= []
-        explored.append(self.isp)
-
-        sorted_map = sorted(map, key=lambda x: x[1])
-
-        while(len(queue)!= 0):
-            node, dis = heapq.heappop(queue)
-            if(node not in explored):
-                explored.append(node)
-            
-            for next_node, weight, apl, edge_list in map:
-                D = distance[node] + weight
-                if(D<=apl):
-                    if (D < distance[next_node]):
-                        distance[next_node] = D
-                        heapq.heappush(queue, (next_node, D))
-                        paths[node]=next_node
-
-
-
+        for client in self.info["list_clients"]:
+            path = self.compute_path(self.isp, client)
+            paths[client] = path
+            bandwidths[client] = self.info["bandwidths"]
+            priorities[client] = self.info["betas"]
         return (paths, bandwidths, priorities)
+
+    def compute_path(self, start, client):
+        max_val = 999999999999999999999999999999999999
+        distances = {}
+        parent = {}
+        distances[start] = 0
+        parent[start] = -1
+        for vertex in self.graph:
+            distances[vertex] = max_val
+            parent[vertex] = None
+
+        for i in range((len(self.graph)) - 1):
+            situation = False
+
+            for vertex in self.graph:
+                for next_vertex in self.graph[vertex]:
+                    if(distances[vertex] != max_val and 
+                        distances[vertex] + self.info["bandwidths"][next_vertex] < 
+                        distances[next_vertex]):
+                            
+                        distances[next_vertex] = distances[vertex] + self.info["bandwidths"][next_vertex]
+                        parent[next_vertex] = vertex
+                        situation = True
+                        self.info["bandwidths"][next_vertex] -= 1 
+                        
+                    if (situation == False):
+                        break
+            
+            
+        path = []
+        current_node = client
+        while (current_node is not None):
+            path.append(current_node)
+            current_node = parent[current_node]
+        path = path[::-1]               
+
+        return path
+
